@@ -155,10 +155,11 @@ var PlatRandomizer = PlatRandomizer || {};
             if (PlatRandomizer.dataStore.settings.randomizeLifespans)
                 PlatRandomizer.randomizePlatLifespan(plat);
 
-            if (plat.name == "Gameling") {
-                plat.published = "1/1/2";
-                plat.platformRetireDate = "1/4/1";
-            }
+            // Debug code adjusting gameling lifespan
+            // if (plat.name == "Gameling") {
+            //     plat.published = "1/1/2";
+            //     plat.platformRetireDate = "1/4/1";
+            // }
 
             // Randomize audience weights
             if (PlatRandomizer.dataStore.settings.randomizeAudienceWeights)
