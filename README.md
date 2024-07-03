@@ -2,8 +2,8 @@
 
 This is a mod aimed at adding more variety to each playthrough by adding additional randomness to the lifespan/performance of platforms, with the primary goal of incentivizing different game/platform choices on each run without compromising normal gameplay
 
-Randomization is applied when making a new save based on the current values set for the mod in its settings tab
-
+- Randomization is applied when making a new save based on the current values set for the mod in its settings tab
+- All Randomization Aspects can be toggled in the settings tab for the mod
 ## Features
 - Dark Main background while playing
 - Ability to randomize the following for every platform
