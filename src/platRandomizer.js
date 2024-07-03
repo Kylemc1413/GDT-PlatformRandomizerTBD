@@ -103,23 +103,13 @@ var PlatRandomizer = PlatRandomizer || {};
         settingsHtml += ('<div class="selectableGameFeatureItem {0}" onclick="PlatRandomizer.toggleSetting(this, \'randomGenreEvents\')">Genre Shift Events</div>'
         .format(PlatRandomizer.dataStore.settings.randomGenreEvents ? "selectedFeature" : ""));
         settingsDiv.html(settingsHtml);
-        // settingsDiv.html(`
-        // <div class="selectableGameFeatureItem ${PlatRandomizer.dataStore.settings.darkBG ? "selectedFeature" : ""}" onclick="PlatRandomizer.toggleSetting(this, 'darkBG')">Dark Main Background Overlay</div>
-        // <div class="windowTitle smallerWindowTitle">Randomizer Options</div>        
-        // <div class="selectableGameFeatureItem ${PlatRandomizer.dataStore.settings.enabled ? "selectedFeature" : ""}" onclick="PlatRandomizer.toggleSetting(this, 'enabled')">Enabled</div>
-        // <div class="selectableGameFeatureItem ${PlatRandomizer.dataStore.settings.randomizeLifespans ? "selectedFeature" : ""}" onclick="PlatRandomizer.toggleSetting(this, 'randomizeLifespans')">Randomize Platform Retire Dates</div>
-        // <div class="selectableGameFeatureItem ${PlatRandomizer.dataStore.settings.randomizeAudienceWeights ? "selectedFeature" : ""}" onclick="PlatRandomizer.toggleSetting(this, 'randomizeAudienceWeights')">Randomize Platform Audience Weights</div>
-        // <div class="selectableGameFeatureItem ${PlatRandomizer.dataStore.settings.randomizeGenreWeights ? "selectedFeature" : ""}" onclick="PlatRandomizer.toggleSetting(this, 'randomizeGenreWeights')">Randomize Platform Genre Weights</div>
-        // <div class="selectableGameFeatureItem ${PlatRandomizer.dataStore.settings.randomizeLicenseCost ? "selectedFeature" : ""}" onclick="PlatRandomizer.toggleSetting(this, 'randomizeLicenseCost')">Randomize Platform License Cost</div>
-        // <div class="selectableGameFeatureItem ${PlatRandomizer.dataStore.settings.randomizeDevCost ? "selectedFeature" : ""}" onclick="PlatRandomizer.toggleSetting(this, 'randomizeDevCost')">Randomize Platform Development Cost</div>
-        // <h3>Random Platform Events</h3>
-        // <div class="selectableGameFeatureItem ${PlatRandomizer.dataStore.settings.randomSalesEvents ? "selectedFeature" : ""}" onclick="PlatRandomizer.toggleSetting(this, 'randomSalesEvents')">Sales Events</div>
-        // <div class="selectableGameFeatureItem ${PlatRandomizer.dataStore.settings.randomAudienceEvents ? "selectedFeature" : ""}" onclick="PlatRandomizer.toggleSetting(this, 'randomAudienceEvents')">Audience Shift Events</div>
-        // <div class="selectableGameFeatureItem ${PlatRandomizer.dataStore.settings.randomGenreEvents ? "selectedFeature" : ""}" onclick="PlatRandomizer.toggleSetting(this, 'randomGenreEvents')">Genre Shift Events</div>
-        // `);
+
         GDT.addSettingsTab("P-Rand", settingsDiv)
         // Store reference to original platforms
         PlatRandomizer.defaultPlatforms = Platforms.allPlatforms;
+        GDT.on(GDT.eventKeys.gameplay.weekProceeded, function () {
+            PlatRandomizer.updateIconForPC();
+        });
 
         GDT.on(GDT.eventKeys.saves.newGame, function () {
             modLog("New game...");
@@ -129,6 +119,7 @@ var PlatRandomizer = PlatRandomizer || {};
                 modLog("Randomizing...");
                 PlatRandomizer.randomize();
                 PlatRandomizer.fixIcons();
+                PlatRandomizer.updateIconForPC();
             }
         });
         GDT.on(GDT.eventKeys.saves.loading, function (e) {
@@ -148,6 +139,7 @@ var PlatRandomizer = PlatRandomizer || {};
                 }
                 Platforms.allPlatforms = storedData.platforms.filter(allPlatformsHasPlatform);
                 PlatRandomizer.fixIcons();
+                PlatRandomizer.updateIconForPC();
                 //Remove all events from this mod and apply stored Random events
                 var doesNotStartWithModId = function(notif) {
                     return !notif.id.startsWith("platRand_tbd-");
@@ -189,13 +181,6 @@ var PlatRandomizer = PlatRandomizer || {};
         var randomEvents = [];
         for (var i = 0; i < Platforms.allPlatforms.length; i++) {
             var plat = Platforms.allPlatforms[i];
-
-            // Events must be added with GDT.addEvent
-            // Should be safe to call to add if already added since addEvent returns if uniqueness check fails
-            // Keep collection of random platform events instead of attaching events directly to platform
-            // On randomize end/load, add all random platform events
-            // Put platform modification logic in getnotification for event where relevant
-            // For market point events, can just schedule them at relevant date
 
             // Randomize retire dates
             if (PlatRandomizer.dataStore.settings.randomizeLifespans)
@@ -313,4 +298,15 @@ var PlatRandomizer = PlatRandomizer || {};
 			}
 		}
 	};
+    // PC has multiple icons so update the icon every week based on the PC icon dates the game has
+    PlatRandomizer.updateIconForPC = function() {
+        if(PlatRandomizer.dataStore.data.saveSettings != undefined && PlatRandomizer.dataStore.data.saveSettings.enabled){
+            var currentDate = GameManager.company.currentWeek;
+            var pcImage = currentDate >= 1072 ? 4 : currentDate >= 728 ? 3 : currentDate >= 176 ? 2 : 1;
+            if(pcImage == 1)
+                PlatRandomizer.getPlatformById("PC").iconUri = "./images/platforms/PC.png";
+            else
+                PlatRandomizer.getPlatformById("PC").iconUri = "./images/platforms/superb/PC-" + pcImage + ".png";
+        }
+    }
 })();
