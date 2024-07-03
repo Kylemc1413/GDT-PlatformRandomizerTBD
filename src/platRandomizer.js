@@ -254,14 +254,14 @@ var PlatRandomizer = PlatRandomizer || {};
 
     PlatRandomizer.randomizePlatDevCost = function(plat) {
         var multiplier = PlatRandomizer.random(0.5, 2.0);
-        plat.developmentCosts *= multiplier;
+        plat.developmentCosts = Math.floor(plat.developmentCosts * multiplier);
         modLog('Changed {0} development cost to {1} using multiplier of {2}'.format(
             plat.name, plat.developmentCosts, multiplier));
     }
 
-    PlatRandomizer.randomizePlatLicenseCost = function(plat){
+    PlatRandomizer.randomizePlatLicenseCost = function(plat) {
         var multiplier = PlatRandomizer.random(0.5, 2.0);
-        plat.licencePrize *= multiplier;
+        plat.licencePrize = Math.floor(plat.licencePrize * multiplier);
         modLog('Changed {0} license cost to {1} using multiplier of {2}'.format(
             plat.name, plat.licencePrize, multiplier));
     }
