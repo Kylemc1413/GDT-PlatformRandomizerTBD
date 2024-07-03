@@ -5,7 +5,11 @@ var PlatRandomizer = PlatRandomizer || {};
       }
     
     PlatRandomizer.getPlatformById = function(platId) {
-        return Platforms.allPlatforms.find(x => x.id == platId);
+        for (var i = 0; i < Platforms.allPlatforms.length; i++) {
+            var plat = Platforms.allPlatforms[i];
+            if(plat.id == platId)
+            return plat;  
+        }
     }
 
     PlatRandomizer.getUnitsForPlatformAtDate = function(plat, dateInt){
@@ -14,31 +18,31 @@ var PlatRandomizer = PlatRandomizer || {};
 
     PlatRandomizer.dateHelper = {};
     PlatRandomizer.dateHelper.flattenDateFromString = function(dateString) {
-        let splitDate = dateString.split('/');
-        let year = splitDate[0] - 1;
-        let month = splitDate[1] - 1;
-        let week = splitDate[2] - 1;
+        var splitDate = dateString.split('/');
+        var year = splitDate[0] - 1;
+        var month = splitDate[1] - 1;
+        var week = splitDate[2] - 1;
 
-        let totalMonths = year * 12 + month;
-        let totalWeeks = totalMonths * 4;
+        var totalMonths = year * 12 + month;
+        var totalWeeks = totalMonths * 4;
         return totalWeeks + week;
     }
 
     PlatRandomizer.dateHelper.flattenDateFromObj = function(dateObj) {
-        let year = dateObj.year - 1;
-        let month = dateObj.month - 1;
-        let week = dateObj.week - 1;
+        var year = dateObj.year - 1;
+        var month = dateObj.month - 1;
+        var week = dateObj.week - 1;
 
-        let totalMonths = year * 12 + month;
-        let totalWeeks = totalMonths * 4;
+        var totalMonths = year * 12 + month;
+        var totalWeeks = totalMonths * 4;
         return totalWeeks + week;
     }
 
     PlatRandomizer.dateHelper.getDateFromString = function(dateString) {
-        let splitDate = dateString.split('/');
-        let year = splitDate[0];
-        let month = splitDate[1];
-        let week = splitDate[2];
+        var splitDate = dateString.split('/');
+        var year = splitDate[0];
+        var month = splitDate[1];
+        var week = splitDate[2];
         return {
             year: year,
             month: month,
@@ -47,9 +51,9 @@ var PlatRandomizer = PlatRandomizer || {};
     }
 
     PlatRandomizer.dateHelper.getDateFromInt = function(dateInt) {
-        let week = Math.floor(dateInt % 4) + 1;
-        let months = Math.floor(dateInt / 4);
-        let year = Math.floor(months / 12) + 1;
+        var week = Math.floor(dateInt % 4) + 1;
+        var months = Math.floor(dateInt / 4);
+        var year = Math.floor(months / 12) + 1;
         return {
             year: year,
             month: Math.floor(months % 12) + 1,
@@ -58,26 +62,26 @@ var PlatRandomizer = PlatRandomizer || {};
     }
 
     PlatRandomizer.dateHelper.getDateStringFromObj = function(dateObj){
-        return `${dateObj.year}/${dateObj.month}/${dateObj.week}`;
+        return dateObj.year + "/" + dateObj.month + "/" + dateObj.week;
     }
     
     PlatRandomizer.dateHelper.getDateStringFromInt = function(dateInt){
         return PlatRandomizer.dateHelper.getDateStringFromObj(PlatRandomizer.dateHelper.getDateFromInt(dateInt));
     }
     PlatRandomizer.dateHelper.lerpDateFromInt = function(firstDateInt, secondDateInt, percentage) {
-        let lerpDate = Math.floor(PlatRandomizer.lerp(firstDateInt, secondDateInt, percentage));
+        var lerpDate = Math.floor(PlatRandomizer.lerp(firstDateInt, secondDateInt, percentage));
         return PlatRandomizer.dateHelper.getDateFromInt(lerpDate);
     }
 
     PlatRandomizer.dateHelper.lerpDateFromString = function(firstDateString, secondDateString, percentage) {
-        let flatDateOne = PlatRandomizer.dateHelper.flattenDateFromString(firstDateString);
-        let flatDateTwo = PlatRandomizer.dateHelper.flattenDateFromString(secondDateString);
+        var flatDateOne = PlatRandomizer.dateHelper.flattenDateFromString(firstDateString);
+        var flatDateTwo = PlatRandomizer.dateHelper.flattenDateFromString(secondDateString);
         return PlatRandomizer.dateHelper.lerpDateFromInt(flatDateOne, flatDateTwo, percentage);
     }
 
     PlatRandomizer.dateHelper.lerpDateFromObj = function(firstDateObj, secondDateObj, percentage) {
-        let flatDateOne = PlatRandomizer.dateHelper.flattenDateFromObj(firstDateObj);
-        let flatDateTwo = PlatRandomizer.dateHelper.flattenDateFromObj(secondDateObj);
+        var flatDateOne = PlatRandomizer.dateHelper.flattenDateFromObj(firstDateObj);
+        var flatDateTwo = PlatRandomizer.dateHelper.flattenDateFromObj(secondDateObj);
         return PlatRandomizer.dateHelper.lerpDateFromInt(flatDateOne, flatDateTwo, percentage);
     }
 })();

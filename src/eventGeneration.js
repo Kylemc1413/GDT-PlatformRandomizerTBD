@@ -3,7 +3,7 @@ var PlatRandomizer = PlatRandomizer || {};
 
     PlatRandomizer.eventGenerator = {};
 
-    let audienceNameForIndex = function (index) {
+    var audienceNameForIndex = function (index) {
         switch (index) {
             case 0:
                 return "Young"
@@ -16,7 +16,7 @@ var PlatRandomizer = PlatRandomizer || {};
         }
     }
 
-    let genreNameForIndex = function (index) {
+    var genreNameForIndex = function (index) {
         switch (index) {
             case 0:
                 return "Action"
@@ -36,18 +36,19 @@ var PlatRandomizer = PlatRandomizer || {};
     }
 
     PlatRandomizer.eventGenerator.generatePlatformEvents = function (plat) {
-        let eventDetailList = [];
-        let publishDate = PlatRandomizer.dateHelper.flattenDateFromString(plat.published);
-        let retireDate = Math.min(2000, PlatRandomizer.dateHelper.flattenDateFromString(plat.platformRetireDate));
-        let lifespanMarkers = [0.2, 0.4, 0.6, 0.8];
-        lifespanMarkers.forEach(marker => {
-            let rand = Math.ceil(PlatRandomizer.random(0, 30));
-            let markerDate = PlatRandomizer.lerp(publishDate, retireDate, marker);
-            let markerDateString = PlatRandomizer.dateHelper.getDateStringFromInt(markerDate);
+        var eventDetailList = [];
+        var publishDate = PlatRandomizer.dateHelper.flattenDateFromString(plat.published);
+        var retireDate = Math.min(2000, PlatRandomizer.dateHelper.flattenDateFromString(plat.platformRetireDate));
+        var lifespanMarkers = [0.2, 0.4, 0.6, 0.8];
+        for (var i = 0; i < lifespanMarkers.length; i++) {
+            var marker = lifespanMarkers[i];
+            var rand = Math.ceil(PlatRandomizer.random(0, 30));
+            var markerDate = PlatRandomizer.lerp(publishDate, retireDate, marker);
+            var markerDateString = PlatRandomizer.dateHelper.getDateStringFromInt(markerDate);
             switch (rand) {
                 case 1:
                     if (!PlatRandomizer.dataStore.settings.randomSalesEvents)
-                        return;
+                        continue;
                     eventDetailList.push({
                         platformId: plat.id,
                         date: markerDateString,
@@ -60,8 +61,8 @@ var PlatRandomizer = PlatRandomizer || {};
                 case 3:
                 case 4:
                     if (!PlatRandomizer.dataStore.settings.randomAudienceEvents)
-                        return;
-                    let audienceIndex = Math.floor(PlatRandomizer.random(0, 2.9));
+                        continue;
+                    var audienceIndex = Math.floor(PlatRandomizer.random(0, 2.9));
                     eventDetailList.push({
                         platformId: plat.id,
                         date: markerDateString,
@@ -75,8 +76,8 @@ var PlatRandomizer = PlatRandomizer || {};
                 case 28:
                 case 29:
                     if (!PlatRandomizer.dataStore.settings.randomGenreEvents)
-                        return;
-                    let genreIndex = Math.floor(PlatRandomizer.random(0, 5.9));
+                        continue;
+                    var genreIndex = Math.floor(PlatRandomizer.random(0, 5.9));
                     eventDetailList.push({
                         platformId: plat.id,
                         date: markerDateString,
@@ -88,7 +89,7 @@ var PlatRandomizer = PlatRandomizer || {};
                     break;
                 case 30:
                     if (!PlatRandomizer.dataStore.settings.randomSalesEvents)
-                        return;
+                        continue;
                     eventDetailList.push({
                         platformId: plat.id,
                         date: markerDateString,
@@ -98,29 +99,29 @@ var PlatRandomizer = PlatRandomizer || {};
                     PlatRandomizer.modLog("Adding a positive sales event for {0} at marker {1}".format(plat.name, marker))
                     break;
             }
-        });
+        };
 
         return eventDetailList;
     }
 
     PlatRandomizer.eventGenerator.generateAudienceEvent = function (eventDetails) {
-        let plat = PlatRandomizer.getPlatformById(eventDetails.platformId);
-        let successMultiplier = PlatRandomizer.scaleMultToRange(eventDetails.multiplier, 0.500001, 1.0);
-        let audience = eventDetails.audienceIndex;
-        let currentWeight = plat.audienceWeightings[audience];
-        let newWeight = Math.ceil(successMultiplier * 10) / 10;
+        var plat = PlatRandomizer.getPlatformById(eventDetails.platformId);
+        var successMultiplier = PlatRandomizer.scaleMultToRange(eventDetails.multiplier, 0.500001, 1.0);
+        var audience = eventDetails.audienceIndex;
+        var currentWeight = plat.audienceWeightings[audience];
+        var newWeight = Math.ceil(successMultiplier * 10) / 10;
         if (newWeight == currentWeight)
             return undefined;
-        let success = newWeight > currentWeight;
-        let weightDiff = Math.abs(newWeight - currentWeight);
-        let largeDiff = weightDiff >= 0.2;
-        let diffText = largeDiff ? "sizable" : "small";
-        let message = success ?
+        var success = newWeight > currentWeight;
+        var weightDiff = Math.abs(newWeight - currentWeight);
+        var largeDiff = weightDiff >= 0.2;
+        var diffText = largeDiff ? "sizable" : "small";
+        var message = success ?
             "The {0} has recently seen a {2} increase in popularity with {1} audiences"
             : "The {0} has recently seen a {2} decrease in popularity with {1} audiences";
         message = message.format(plat.name, audienceNameForIndex(audience), diffText);
         return {
-            id: `platRand_tbd-${GameManager.getGUID()}`,
+            id: "platRand_tbd-" + GameManager.getGUID(),
             date: eventDetails.date,
             eventDetails: eventDetails,
             getNotification: function (company) {
@@ -135,23 +136,23 @@ var PlatRandomizer = PlatRandomizer || {};
     }
 
     PlatRandomizer.eventGenerator.generateGenreEvent = function (eventDetails) {
-        let plat = PlatRandomizer.getPlatformById(eventDetails.platformId);
-        let successMultiplier = PlatRandomizer.scaleMultToRange(eventDetails.multiplier, 0.500001, 1.0);
-        let genre = eventDetails.genreIndex;
-        let currentWeight = plat.genreWeightings[genre];
-        let newWeight = Math.ceil(successMultiplier * 10) / 10;
+        var plat = PlatRandomizer.getPlatformById(eventDetails.platformId);
+        var successMultiplier = PlatRandomizer.scaleMultToRange(eventDetails.multiplier, 0.500001, 1.0);
+        var genre = eventDetails.genreIndex;
+        var currentWeight = plat.genreWeightings[genre];
+        var newWeight = Math.ceil(successMultiplier * 10) / 10;
         if (newWeight == currentWeight)
             return undefined;
-        let weightDiff = Math.abs(newWeight - currentWeight);
-        let largeDiff = weightDiff >= 0.2;
-        let diffText = largeDiff ? "sharp" : "minor";
-        let success = newWeight > currentWeight;
-        let message = success ?
+        var weightDiff = Math.abs(newWeight - currentWeight);
+        var largeDiff = weightDiff >= 0.2;
+        var diffText = largeDiff ? "sharp" : "minor";
+        var success = newWeight > currentWeight;
+        var message = success ?
             "{0} games have seen a {2} increase in popularity for the {1}"
             : "{0} games have seen a {2} decrease in popularity for the {1}";
         message = message.format(genreNameForIndex(genre), plat.name, diffText);
         return {
-            id: `platRand_tbd-${GameManager.getGUID()}`,
+            id: "platRand_tbd-" + GameManager.getGUID(),
             date: eventDetails.date,
             eventDetails: eventDetails,
             getNotification: function (company) {
@@ -166,20 +167,20 @@ var PlatRandomizer = PlatRandomizer || {};
     }
 
     PlatRandomizer.eventGenerator.generateSalesEvent = function (eventDetails) {
-        let plat = PlatRandomizer.getPlatformById(eventDetails.platformId);
-        let successMultiplier = PlatRandomizer.scaleMultToRange(eventDetails.multiplier, 0.75, 1.25);
-        let message = successMultiplier > 1 ?
-            `{0} has started a new global marketing campaign for the {1} in an effort to bring the system to wider audiences. Industry experts predict this will have a positive effect on sales for the {1}`
-            : `There has been an upsurge of hardware issues reported by users for the {1}. Industry experts predict this will have a negative impact on sales for {0} going forward.`;
+        var plat = PlatRandomizer.getPlatformById(eventDetails.platformId);
+        var successMultiplier = PlatRandomizer.scaleMultToRange(eventDetails.multiplier, 0.75, 1.25);
+        var message = successMultiplier > 1 ?
+            "{0} has started a new global marketing campaign for the {1} in an effort to bring the system to wider audiences. Industry experts predict this will have a positive effect on sales for the {1}"
+            : "There has been an upsurge of hardware issues reported by users for the {1}. Industry experts predict this will have a negative impact on sales for {0} going forward.";
         message = message.format(plat.company, plat.name);
         return {
-            id: `platRand_tbd-${GameManager.getGUID()}`,
+            id: "platRand_tbd-" + GameManager.getGUID(),
             date: eventDetails.date,
             eventDetails: eventDetails,
             getNotification: function (company) {
-                let dateInt = PlatRandomizer.dateHelper.flattenDateFromString(eventDetails.date);
-                let futureDate = dateInt + 4;
-                plat.marketKeyPoints = plat.marketKeyPoints ?? [];
+                var dateInt = PlatRandomizer.dateHelper.flattenDateFromString(eventDetails.date);
+                var futureDate = dateInt + 4;
+                plat.marketKeyPoints = plat.marketKeyPoints || [];
                 plat.marketKeyPoints.push({ date: PlatRandomizer.dateHelper.getDateStringFromInt(futureDate), amount: PlatRandomizer.getUnitsForPlatformAtDate(plat, futureDate) * successMultiplier });
                 plat.unitsSold *= successMultiplier;
                 return new Notification({

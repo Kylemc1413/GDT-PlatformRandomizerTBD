@@ -2,17 +2,17 @@ var PlatRandomizer = PlatRandomizer || {};
 (function() {
     PlatRandomizer.dataStore = GDT.getDataStore('platrand_tbd');
 
-    let modLog = function(message) {
+    var modLog = function(message) {
         console.log("platrand_tbd: " + message);
     }
     PlatRandomizer.modLog = modLog;
 
-    let random = function(min, max) {
+    var random = function(min, max) {
         return GameManager.company.getRandom() * (max - min) + min;
     }
     PlatRandomizer.random = random;
 
-    let scaleMultToRange = function(multiplier, min, max){
+    var scaleMultToRange = function(multiplier, min, max){
         return multiplier * (max - min) + min;
     }
     PlatRandomizer.scaleMultToRange = scaleMultToRange;
@@ -36,8 +36,8 @@ var PlatRandomizer = PlatRandomizer || {};
         DataStore.saveSettings();
     }
     PlatRandomizer.initializeSettings = function () {
-        let dataStoreSettings = PlatRandomizer.dataStore.settings;
-        let defaultSettings = {
+        var dataStoreSettings = PlatRandomizer.dataStore.settings;
+        var defaultSettings = {
             darkBG: true,
             enabled: true,
             randomizeLifespans: true,
@@ -49,18 +49,18 @@ var PlatRandomizer = PlatRandomizer || {};
             randomAudienceEvents: true,
             randomGenreEvents: true
         }
-        dataStoreSettings.darkBG = dataStoreSettings.darkBG ?? defaultSettings.darkBG;
+        dataStoreSettings.darkBG = dataStoreSettings.darkBG || defaultSettings.darkBG;
         if (dataStoreSettings.darkBG)
             $("head").append('<link id="platRand_tbd-dark" rel="stylesheet" href="' + platRand_TBD.path + '/css/darkBG.css" rel="stylesheet" type="text/css">');
-        dataStoreSettings.enabled = dataStoreSettings.enabled ?? defaultSettings.enabled;
-        dataStoreSettings.randomizeLifespans = dataStoreSettings.randomizeLifespans ?? defaultSettings.randomizeLifespans;
-        dataStoreSettings.randomizeAudienceWeights = dataStoreSettings.randomizeAudienceWeights ?? defaultSettings.randomizeAudienceWeights;
-        dataStoreSettings.randomizeGenreWeights = dataStoreSettings.randomizeGenreWeights ?? defaultSettings.randomizeGenreWeights;
-        dataStoreSettings.randomizeLicenseCost = dataStoreSettings.randomizeLicenseCost ?? defaultSettings.randomizeLicenseCost;
-        dataStoreSettings.randomizeDevCost = dataStoreSettings.randomizeDevCost ?? defaultSettings.randomizeDevCost;
-        dataStoreSettings.randomSalesEvents = dataStoreSettings.randomSalesEvents ?? defaultSettings.randomSalesEvents;
-        dataStoreSettings.randomAudienceEvents = dataStoreSettings.randomAudienceEvents ?? defaultSettings.randomAudienceEvents;
-        dataStoreSettings.randomGenreEvents = dataStoreSettings.randomGenreEvents ?? defaultSettings.randomGenreEvents;
+        dataStoreSettings.enabled = dataStoreSettings.enabled || defaultSettings.enabled;
+        dataStoreSettings.randomizeLifespans = dataStoreSettings.randomizeLifespans || defaultSettings.randomizeLifespans;
+        dataStoreSettings.randomizeAudienceWeights = dataStoreSettings.randomizeAudienceWeights || defaultSettings.randomizeAudienceWeights;
+        dataStoreSettings.randomizeGenreWeights = dataStoreSettings.randomizeGenreWeights || defaultSettings.randomizeGenreWeights;
+        dataStoreSettings.randomizeLicenseCost = dataStoreSettings.randomizeLicenseCost || defaultSettings.randomizeLicenseCost;
+        dataStoreSettings.randomizeDevCost = dataStoreSettings.randomizeDevCost || defaultSettings.randomizeDevCost;
+        dataStoreSettings.randomSalesEvents = dataStoreSettings.randomSalesEvents || defaultSettings.randomSalesEvents;
+        dataStoreSettings.randomAudienceEvents = dataStoreSettings.randomAudienceEvents || defaultSettings.randomAudienceEvents;
+        dataStoreSettings.randomGenreEvents = dataStoreSettings.randomGenreEvents || defaultSettings.randomGenreEvents;
         DataStore.saveSettings();
     }
 
@@ -68,21 +68,55 @@ var PlatRandomizer = PlatRandomizer || {};
         // Initialize Default Settings Values
         PlatRandomizer.initializeSettings();
         // Setup Settings Menu
-        let settingsDiv = $(document.createElement('div'));
-        settingsDiv.html(`
-        <div class="selectableGameFeatureItem ${PlatRandomizer.dataStore.settings.darkBG ? "selectedFeature" : ""}" onclick="PlatRandomizer.toggleSetting(this, 'darkBG')">Dark Main Background Overlay</div>
-        <div class="windowTitle smallerWindowTitle">Randomizer Options</div>        
-        <div class="selectableGameFeatureItem ${PlatRandomizer.dataStore.settings.enabled ? "selectedFeature" : ""}" onclick="PlatRandomizer.toggleSetting(this, 'enabled')">Enabled</div>
-        <div class="selectableGameFeatureItem ${PlatRandomizer.dataStore.settings.randomizeLifespans ? "selectedFeature" : ""}" onclick="PlatRandomizer.toggleSetting(this, 'randomizeLifespans')">Randomize Platform Retire Dates</div>
-        <div class="selectableGameFeatureItem ${PlatRandomizer.dataStore.settings.randomizeAudienceWeights ? "selectedFeature" : ""}" onclick="PlatRandomizer.toggleSetting(this, 'randomizeAudienceWeights')">Randomize Platform Audience Weights</div>
-        <div class="selectableGameFeatureItem ${PlatRandomizer.dataStore.settings.randomizeGenreWeights ? "selectedFeature" : ""}" onclick="PlatRandomizer.toggleSetting(this, 'randomizeGenreWeights')">Randomize Platform Genre Weights</div>
-        <div class="selectableGameFeatureItem ${PlatRandomizer.dataStore.settings.randomizeLicenseCost ? "selectedFeature" : ""}" onclick="PlatRandomizer.toggleSetting(this, 'randomizeLicenseCost')">Randomize Platform License Cost</div>
-        <div class="selectableGameFeatureItem ${PlatRandomizer.dataStore.settings.randomizeDevCost ? "selectedFeature" : ""}" onclick="PlatRandomizer.toggleSetting(this, 'randomizeDevCost')">Randomize Platform Development Cost</div>
-        <h3>Random Platform Events</h3>
-        <div class="selectableGameFeatureItem ${PlatRandomizer.dataStore.settings.randomSalesEvents ? "selectedFeature" : ""}" onclick="PlatRandomizer.toggleSetting(this, 'randomSalesEvents')">Sales Events</div>
-        <div class="selectableGameFeatureItem ${PlatRandomizer.dataStore.settings.randomAudienceEvents ? "selectedFeature" : ""}" onclick="PlatRandomizer.toggleSetting(this, 'randomAudienceEvents')">Audience Shift Events</div>
-        <div class="selectableGameFeatureItem ${PlatRandomizer.dataStore.settings.randomGenreEvents ? "selectedFeature" : ""}" onclick="PlatRandomizer.toggleSetting(this, 'randomGenreEvents')">Genre Shift Events</div>
-        `);
+        var settingsDiv = $(document.createElement('div'));
+        var settingsHtml = "";
+        // Dark BG
+        settingsHtml += ('<div class="selectableGameFeatureItem {0}" onclick="PlatRandomizer.toggleSetting(this, \'darkBG\')">Dark Main Background Overlay</div>'
+        .format(PlatRandomizer.dataStore.settings.darkBG ? "selectedFeature" : ""));
+        settingsHtml += ('<div class="windowTitle smallerWindowTitle">Randomizer Options</div>');
+        // Enabled
+        settingsHtml += ('<div class="selectableGameFeatureItem {0}" onclick="PlatRandomizer.toggleSetting(this, \'enabled\')">Enabled</div>'
+        .format(PlatRandomizer.dataStore.settings.enabled ? "selectedFeature" : ""));
+        // Randomize Platform Retire Dates
+        settingsHtml += ('<div class="selectableGameFeatureItem {0}" onclick="PlatRandomizer.toggleSetting(this, \'randomizeLifespans\')">Randomize Platform Retire Dates</div>'
+        .format(PlatRandomizer.dataStore.settings.randomizeLifespans ? "selectedFeature" : ""));
+        // Randomize Platform Audience Weights
+        settingsHtml += ('<div class="selectableGameFeatureItem {0}" onclick="PlatRandomizer.toggleSetting(this, \'randomizeAudienceWeights\')">Randomize Platform Audience Weights</div>'
+        .format(PlatRandomizer.dataStore.settings.randomizeAudienceWeights ? "selectedFeature" : ""));
+        // Randomize Platform Genre Weights
+        settingsHtml += ('<div class="selectableGameFeatureItem {0}" onclick="PlatRandomizer.toggleSetting(this, \'randomizeGenreWeights\')">Randomize Platform Audience Weights</div>'
+        .format(PlatRandomizer.dataStore.settings.randomizeGenreWeights ? "selectedFeature" : ""));
+        // Randomize Platform License Cost
+        settingsHtml += ('<div class="selectableGameFeatureItem {0}" onclick="PlatRandomizer.toggleSetting(this, \'randomizeLicenseCost\')">Randomize Platform License Cost</div>'
+        .format(PlatRandomizer.dataStore.settings.randomizeLicenseCost ? "selectedFeature" : ""));
+        // Randomize Platform Development Cost
+        settingsHtml += ('<div class="selectableGameFeatureItem {0}" onclick="PlatRandomizer.toggleSetting(this, \'randomizeDevCost\')">Randomize Platform Development Cost</div>'
+        .format(PlatRandomizer.dataStore.settings.randomizeDevCost ? "selectedFeature" : ""));
+        settingsHtml += ('<h3>Random Platform Events</h3>');
+        // Sales Events
+        settingsHtml += ('<div class="selectableGameFeatureItem {0}" onclick="PlatRandomizer.toggleSetting(this, \'randomSalesEvents\')">Sales Events</div>'
+        .format(PlatRandomizer.dataStore.settings.randomSalesEvents ? "selectedFeature" : ""));
+        // Audience Shift Events
+        settingsHtml += ('<div class="selectableGameFeatureItem {0}" onclick="PlatRandomizer.toggleSetting(this, \'randomAudienceEvents\')">Audience Shift Events</div>'
+        .format(PlatRandomizer.dataStore.settings.randomAudienceEvents ? "selectedFeature" : ""));
+        // Genre Shift Events
+        settingsHtml += ('<div class="selectableGameFeatureItem {0}" onclick="PlatRandomizer.toggleSetting(this, \'randomGenreEvents\')">Genre Shift Events</div>'
+        .format(PlatRandomizer.dataStore.settings.randomGenreEvents ? "selectedFeature" : ""));
+        settingsDiv.html(settingsHtml);
+        // settingsDiv.html(`
+        // <div class="selectableGameFeatureItem ${PlatRandomizer.dataStore.settings.darkBG ? "selectedFeature" : ""}" onclick="PlatRandomizer.toggleSetting(this, 'darkBG')">Dark Main Background Overlay</div>
+        // <div class="windowTitle smallerWindowTitle">Randomizer Options</div>        
+        // <div class="selectableGameFeatureItem ${PlatRandomizer.dataStore.settings.enabled ? "selectedFeature" : ""}" onclick="PlatRandomizer.toggleSetting(this, 'enabled')">Enabled</div>
+        // <div class="selectableGameFeatureItem ${PlatRandomizer.dataStore.settings.randomizeLifespans ? "selectedFeature" : ""}" onclick="PlatRandomizer.toggleSetting(this, 'randomizeLifespans')">Randomize Platform Retire Dates</div>
+        // <div class="selectableGameFeatureItem ${PlatRandomizer.dataStore.settings.randomizeAudienceWeights ? "selectedFeature" : ""}" onclick="PlatRandomizer.toggleSetting(this, 'randomizeAudienceWeights')">Randomize Platform Audience Weights</div>
+        // <div class="selectableGameFeatureItem ${PlatRandomizer.dataStore.settings.randomizeGenreWeights ? "selectedFeature" : ""}" onclick="PlatRandomizer.toggleSetting(this, 'randomizeGenreWeights')">Randomize Platform Genre Weights</div>
+        // <div class="selectableGameFeatureItem ${PlatRandomizer.dataStore.settings.randomizeLicenseCost ? "selectedFeature" : ""}" onclick="PlatRandomizer.toggleSetting(this, 'randomizeLicenseCost')">Randomize Platform License Cost</div>
+        // <div class="selectableGameFeatureItem ${PlatRandomizer.dataStore.settings.randomizeDevCost ? "selectedFeature" : ""}" onclick="PlatRandomizer.toggleSetting(this, 'randomizeDevCost')">Randomize Platform Development Cost</div>
+        // <h3>Random Platform Events</h3>
+        // <div class="selectableGameFeatureItem ${PlatRandomizer.dataStore.settings.randomSalesEvents ? "selectedFeature" : ""}" onclick="PlatRandomizer.toggleSetting(this, 'randomSalesEvents')">Sales Events</div>
+        // <div class="selectableGameFeatureItem ${PlatRandomizer.dataStore.settings.randomAudienceEvents ? "selectedFeature" : ""}" onclick="PlatRandomizer.toggleSetting(this, 'randomAudienceEvents')">Audience Shift Events</div>
+        // <div class="selectableGameFeatureItem ${PlatRandomizer.dataStore.settings.randomGenreEvents ? "selectedFeature" : ""}" onclick="PlatRandomizer.toggleSetting(this, 'randomGenreEvents')">Genre Shift Events</div>
+        // `);
         GDT.addSettingsTab("P-Rand", settingsDiv)
         // Store reference to original platforms
         PlatRandomizer.defaultPlatforms = Platforms.allPlatforms;
@@ -99,24 +133,36 @@ var PlatRandomizer = PlatRandomizer || {};
         });
         GDT.on(GDT.eventKeys.saves.loading, function (e) {
             modLog("Save loading...");
-            if (PlatRandomizer.dataStore.data.saveSettings?.enabled) {
+            if (PlatRandomizer.dataStore.data.saveSettings != undefined && PlatRandomizer.dataStore.data.saveSettings.enabled) {
                 modLog("Applying saved randomizations");
-                let storedData = e.data.modData.platrand_tbd;
+                var storedData = e.data.modData.platrand_tbd;
                 // Only apply modified platforms that have a matching platform in AllPlatforms?
                 // This is to account for a platform no longer existing due to a mod being disabled/removed
-                Platforms.allPlatforms = storedData.platforms.filter(x => Platforms.allPlatforms.filter(y => y.id == x.id).length > 0);
+                var allPlatformsHasPlatform = function(plat) {
+                    for (var index = 0; index < Platforms.allPlatforms.length; index++) {
+                        var platTwo = Platforms.allPlatforms[index];
+                        if(plat.id == platTwo.id)
+                        return true;
+                    }
+                    return false;
+                }
+                Platforms.allPlatforms = storedData.platforms.filter(allPlatformsHasPlatform);
                 PlatRandomizer.fixIcons();
                 //Remove all events from this mod and apply stored Random events
-                DecisionNotifications.modNotifications = DecisionNotifications.modNotifications.filter(x => !x.id.startsWith("platRand_tbd-"));
-                storedData.randomEvents.forEach(eventDetails => {
+                var doesNotStartWithModId = function(notif) {
+                    return !notif.id.startsWith("platRand_tbd-");
+                }
+                DecisionNotifications.modNotifications = DecisionNotifications.modNotifications.filter(doesNotStartWithModId);
+                for (var eventIndex = 0; eventIndex < storedData.randomEvents.length; eventIndex++) {
+                    var eventDetails = storedData.randomEvents[eventIndex];
                     // Ignore events that don't have a matching platform
-                    let platform = PlatRandomizer.getPlatformById(eventDetails.platformId);
+                    var platform = PlatRandomizer.getPlatformById(eventDetails.platformId);
                     if(platform == undefined)
                         return;
-                    let event = PlatRandomizer.generateEvent(eventDetails);
+                    var event = PlatRandomizer.generateEvent(eventDetails);
                     if(event != undefined)
                         GDT.addEvent(event);
-                });
+                }
             }
             else {
                 modLog("Restoring default platforms");
@@ -139,10 +185,10 @@ var PlatRandomizer = PlatRandomizer || {};
         }
     }
     PlatRandomizer.randomize = function () {
-        let originalPlatforms = $.extend(true, {}, Platforms.allPlatforms);
-        let randomEvents = [];
+        var originalPlatforms = $.extend(true, {}, Platforms.allPlatforms);
+        var randomEvents = [];
         for (var i = 0; i < Platforms.allPlatforms.length; i++) {
-            let plat = Platforms.allPlatforms[i];
+            var plat = Platforms.allPlatforms[i];
 
             // Events must be added with GDT.addEvent
             // Should be safe to call to add if already added since addEvent returns if uniqueness check fails
@@ -174,16 +220,20 @@ var PlatRandomizer = PlatRandomizer || {};
             if (PlatRandomizer.dataStore.settings.randomizeLicenseCost)
                 PlatRandomizer.randomizePlatLicenseCost(plat);
 
-            let platformEvents = PlatRandomizer.eventGenerator.generatePlatformEvents(plat);
-            randomEvents.push(...platformEvents);
+            var platformEvents = PlatRandomizer.eventGenerator.generatePlatformEvents(plat);
+            randomEvents = randomEvents.concat(platformEvents);
         }
         // Remove all events from this mod and apply stored Random events
-        DecisionNotifications.modNotifications = DecisionNotifications.modNotifications.filter(x => !x.id.startsWith("platRand_tbd-"));
-        randomEvents.forEach(eventDetails => {
-            let event = PlatRandomizer.generateEvent(eventDetails);
+        var doesNotStartWithModId = function(notif) {
+            return !notif.id.startsWith("platRand_tbd-");
+        }
+        DecisionNotifications.modNotifications = DecisionNotifications.modNotifications.filter(doesNotStartWithModId);
+        for (var eventIndex = 0; eventIndex < randomEvents.length; eventIndex++) {
+            var eventDetails = randomEvents[eventIndex];
+            var event = PlatRandomizer.generateEvent(eventDetails);
             if(event != undefined)
                 GDT.addEvent(event);
-        });
+        }
         PlatRandomizer.dataStore.data.randomEvents = randomEvents;
         PlatRandomizer.dataStore.data.originalPlatforms = originalPlatforms;
         PlatRandomizer.dataStore.data.platforms = Platforms.allPlatforms;
@@ -203,14 +253,14 @@ var PlatRandomizer = PlatRandomizer || {};
     }
 
     PlatRandomizer.randomizePlatDevCost = function(plat) {
-        let multiplier = PlatRandomizer.random(0.5, 2.0);
+        var multiplier = PlatRandomizer.random(0.5, 2.0);
         plat.developmentCosts *= multiplier;
         modLog('Changed {0} development cost to {1} using multiplier of {2}'.format(
             plat.name, plat.developmentCosts, multiplier));
     }
 
     PlatRandomizer.randomizePlatLicenseCost = function(plat){
-        let multiplier = PlatRandomizer.random(0.5, 2.0);
+        var multiplier = PlatRandomizer.random(0.5, 2.0);
         plat.licencePrize *= multiplier;
         modLog('Changed {0} license cost to {1} using multiplier of {2}'.format(
             plat.name, plat.licencePrize, multiplier));
@@ -218,16 +268,16 @@ var PlatRandomizer = PlatRandomizer || {};
     
     PlatRandomizer.randomizePlatLifespan = function(plat) {
         // Don't Randomize lifespan for PC, and other platforms with a lifespan past year 100
-        let retireDateObj = PlatRandomizer.dateHelper.getDateFromString(plat.platformRetireDate);
+        var retireDateObj = PlatRandomizer.dateHelper.getDateFromString(plat.platformRetireDate);
         if (plat.id == "PC" || retireDateObj.year >= 100)
             return;
         // Generate Lifespan modifier between 0.75 and 1.25
-        let lifeSpanModifier = PlatRandomizer.random(0.75, 1.25);
-        let originalPublishDate = PlatRandomizer.dateHelper.flattenDateFromString(plat.published);
-        let originalRetireDate = PlatRandomizer.dateHelper.flattenDateFromString(plat.platformRetireDate);
-        let originalLifeSpan = originalRetireDate - originalPublishDate;
-        let modifiedLifespan = originalLifeSpan * lifeSpanModifier;
-        let newRetireDate = PlatRandomizer.dateHelper.getDateStringFromObj(
+        var lifeSpanModifier = PlatRandomizer.random(0.75, 1.25);
+        var originalPublishDate = PlatRandomizer.dateHelper.flattenDateFromString(plat.published);
+        var originalRetireDate = PlatRandomizer.dateHelper.flattenDateFromString(plat.platformRetireDate);
+        var originalLifeSpan = originalRetireDate - originalPublishDate;
+        var modifiedLifespan = originalLifeSpan * lifeSpanModifier;
+        var newRetireDate = PlatRandomizer.dateHelper.getDateStringFromObj(
             PlatRandomizer.dateHelper.getDateFromInt(originalPublishDate + modifiedLifespan));
         modLog("Modified Retire Date for platform {0} from {1} to {2} with modifier of {3}".format(
             plat.name, plat.platformRetireDate, newRetireDate, lifeSpanModifier
