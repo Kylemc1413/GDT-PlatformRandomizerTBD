@@ -1,0 +1,4 @@
+.mainBackgroundOverlay {
+    background-image: -ms-radial-gradient(center, ellipse closest-side, #040404 0%, #16171a 50%, #181a1d  100%);
+    background-image: -webkit-radial-gradient(center, ellipse closest-side, #040404 0%, #16171a 50%, #181a1d  100%);
+}
